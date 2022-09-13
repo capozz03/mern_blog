@@ -6,7 +6,7 @@
 
 /coverage
 
-/build
+/client/build
 
 /client/.DS_Store
 /client/.env.local

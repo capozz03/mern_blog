@@ -1,4 +1,5 @@
 {
+  "homepage": "https://mern_blog.vercel.app",
   "name": "react-blog",
   "version": "0.1.0",
   "private": true,
