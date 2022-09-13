@@ -1,9 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import * as dotenv from 'dotenv';
+// import * as dotenv from 'dotenv';
 import multer from 'multer';
 import cors from 'cors';
-dotenv.config();
+// dotenv.config();
 
 import {
   registerValidation,
@@ -14,7 +14,7 @@ import { checkAuth, handleValidationErrors } from './utils/index.js';
 import { UserController, PostController } from './controllers/index.js';
 
 mongoose
-  .connect('mongodb://localhost:27017/blog?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false')
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log('DB OK'))
   .catch(() => console.log('DB Not work'))
 
@@ -56,7 +56,7 @@ app.delete('/posts/:id', checkAuth, PostController.remove);
 app.patch('/posts/:id', checkAuth, postCreateValidation, handleValidationErrors, PostController.update);
 
 
-app.listen(process.env.PORT, (err) => {
+app.listen(process.env.PORT || 4444, (err) => {
   if (err) {
     return console.log(err);
   }
