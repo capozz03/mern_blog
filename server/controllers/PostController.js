@@ -2,7 +2,14 @@ import PostModel from '../models/Post.js';
 
 export const getAll = async (req, res) => {
   try {
-    const posts = await PostModel.find().populate('user').exec();
+    const sortType = req.query.sort;
+    const sort = {};
+
+    if (req.query.sort) {
+      sort[sortType] = sortType === 'createdAt' ? 1 : -1;
+    }
+
+    const posts = await PostModel.find().sort(sort).populate('user').exec();
 
     res.json(posts);
   } catch (error) {
@@ -27,6 +34,22 @@ export const getLastTags = async (req, res) => {
     console.log(error);
     res.status(500).json({
       message: 'Не удалось получить статьи',
+    });
+  }
+};
+
+export const getSearchTag = async (req, res) => {
+  try {
+    const tag = req.params.tag; // из query запроса
+    
+    const posts = await PostModel.find({ tags: tag }).populate('user').exec();
+
+    res.json(posts);
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Не удалось получить статью',
     });
   }
 };

@@ -1,9 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
-// import * as dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 import multer from 'multer';
 import cors from 'cors';
-// dotenv.config();
+dotenv.config();
 
 import {
   registerValidation,
@@ -35,6 +35,7 @@ const upload = multer({
 
 // позволяет читать json запрос, иначе возвращает undefined в request
 app.use(express.json());
+
 app.use(cors());
 app.use('/uploads', express.static('uploads'));
 
@@ -48,12 +49,20 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
   })
 })
 
+app.post('/upload/register', upload.single('image'), (req, res) => {
+  res.json({
+    url: `/uploads/${req.file.originalname}`,
+  })
+})
+
 app.get('/posts', PostController.getAll);
 app.get('/posts/tags', PostController.getLastTags);
 app.get('/posts/:id', PostController.getOne);
 app.post('/posts', checkAuth, postCreateValidation, handleValidationErrors, PostController.create);
 app.delete('/posts/:id', checkAuth, PostController.remove);
 app.patch('/posts/:id', checkAuth, postCreateValidation, handleValidationErrors, PostController.update);
+
+app.get('/tags/:tag', PostController.getSearchTag);
 
 
 app.listen(process.env.PORT || 4444, (err) => {

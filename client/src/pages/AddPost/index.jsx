@@ -38,12 +38,10 @@ export const AddPost = () => {
       formData.append("image", file);
       const { data } = await api.post("/upload", formData);
       setImageUrl(data.url);
-      console.log(imageUrl);
     } catch (error) {
       console.warn(error);
       alert("Ошибка загрузки файла");
     }
-    console.log(event.target.files);
   };
 
   const onClickRemoveImage = () => {

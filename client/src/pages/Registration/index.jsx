@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
@@ -10,11 +10,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchRegister, selectIsAuth } from "../../redux/slices/auth";
 import { useForm } from "react-hook-form";
 import { Navigate } from "react-router-dom";
+import api from "../../api/api";
 
 export const Registration = () => {
   const isAuth = useSelector(selectIsAuth);
+  const inputAvatarRef = useRef();
 
   const dispatch = useDispatch();
+
+  const [avatarUrl, setAvatarUrl] = useState("");
 
   const {
     register,
@@ -25,22 +29,39 @@ export const Registration = () => {
     defaultValues: {
       fullName: "Вася Пупкин",
       email: "vasya@mail.ru",
+      avatarUrl: `${process.env.REACT_APP_API_URL}${avatarUrl}`,
       password: "1234",
     },
-    mode: 'onChange'
+    mode: "onChange",
   });
 
   const onSubmit = async (values) => {
+
+    if (avatarUrl) {
+      values.avatarUrl = avatarUrl
+    }
+
     const { payload } = await dispatch(fetchRegister(values));
 
     if (!payload) {
       return alert("Не удалось зарегистрироваться");
     }
 
-    console.log(payload);
-
     if ("token" in payload) {
       window.localStorage.setItem("token", payload.token);
+    }
+  };
+
+  const handleChangeFile = async (event) => {
+    try {
+      const formData = new FormData();
+      const file = event.target.files[0];
+      formData.append("image", file);
+      const { data } = await api.post("/upload/register", formData);
+      setAvatarUrl(`${process.env.REACT_APP_API_URL}${data.url}`);
+    } catch (error) {
+      console.warn(error);
+      alert("Ошибка загрузки файла");
     }
   };
 
@@ -53,10 +74,20 @@ export const Registration = () => {
       <Typography classes={{ root: styles.title }} variant="h5">
         Создание аккаунта
       </Typography>
-      <div className={styles.avatar}>
-        <Avatar sx={{ width: 100, height: 100 }} />
-      </div>
       <form onSubmit={handleSubmit(onSubmit)}>
+        <div className={styles.avatar}>
+          <Avatar
+            sx={{ width: 100, height: 100 }}
+            onClick={() => inputAvatarRef.current.click()}
+            src={avatarUrl}
+          />
+          <input
+            ref={inputAvatarRef}
+            type="file"
+            onChange={handleChangeFile}
+            hidden
+          />
+        </div>
         <TextField
           error={Boolean(errors.fullName?.message)}
           helperText={errors.fullName?.message}
@@ -83,7 +114,13 @@ export const Registration = () => {
           label="Пароль"
           fullWidth
         />
-        <Button disabled={!isValid} type="submit" size="large" variant="contained" fullWidth>
+        <Button
+          disabled={!isValid}
+          type="submit"
+          size="large"
+          variant="contained"
+          fullWidth
+        >
           Зарегистрироваться
         </Button>
       </form>

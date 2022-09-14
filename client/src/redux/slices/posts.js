@@ -11,10 +11,24 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   return data;
 });
 
+export const fetchPostsWithSort = createAsyncThunk('posts/fetchPostsWithSort', async (params) => {
+  const {
+    data
+  } = await api.get(`/posts?sort=${params}`);
+  return data;
+});
+
 export const fetchTags = createAsyncThunk('posts/fetchTags', async () => {
   const {
     data
   } = await api.get('/posts/tags');
+  return data;
+});
+
+export const fetchPostWithSearchingTag = createAsyncThunk('posts/fetchPostWithSearchingTag', async (tag) => {
+  const {
+    data
+  } = await api.get(`/tags/${tag}`);
   return data;
 });
 
@@ -53,6 +67,20 @@ const postsSlice = createSlice({
       state.posts.status = 'error';
     },
 
+    // Получение статей с сортировкой
+    [fetchPostsWithSort.pending]: (state, action) => {
+      state.posts.items = [];
+      state.posts.status = 'loading';
+    },
+    [fetchPostsWithSort.fulfilled]: (state, action) => {
+      state.posts.items = action.payload;
+      state.posts.status = 'loaded';
+    },
+    [fetchPostsWithSort.rejected]: (state) => {
+      state.posts.items = [];
+      state.posts.status = 'error';
+    },
+
     // Получение тегов
     [fetchTags.pending]: (state, action) => {
       state.tags.items = [];
@@ -65,6 +93,20 @@ const postsSlice = createSlice({
     [fetchTags.rejected]: (state) => {
       state.tags.items = [];
       state.tags.status = 'error';
+    },
+
+    // Получение постов с найденным тегом
+    [fetchPostWithSearchingTag.pending]: (state, action) => {
+      state.posts.items = [];
+      state.posts.status = 'loading';
+    },
+    [fetchPostWithSearchingTag.fulfilled]: (state, action) => {
+      state.posts.items = action.payload;
+      state.posts.status = 'loaded';
+    },
+    [fetchPostWithSearchingTag.rejected]: (state) => {
+      state.posts.items = [];
+      state.posts.status = 'error';
     },
 
     // Удаление статьи
