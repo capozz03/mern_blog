@@ -4,7 +4,6 @@ import mongoose from 'mongoose';
 import multer from 'multer';
 import cors from 'cors';
 
-
 import {
   registerValidation,
   loginValidation,
